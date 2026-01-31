@@ -44,15 +44,16 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test("new agent tile shows avatar and input without transcript", async ({ page }) => {
+test("new agent tile shows avatar and input with inspect panel", async ({ page }) => {
   await page.goto("/");
 
   await expect(page.getByAltText("Avatar for Agent A")).toBeVisible();
-  await expect(page.getByPlaceholder("Send a command")).toBeVisible();
-  await expect(page.locator("[data-testid='agent-transcript']")).toHaveCount(0);
+  await expect(page.getByPlaceholder(/type a message/i)).toBeVisible();
+  await expect(page.getByTestId("agent-inspect-panel")).toHaveCount(0);
 
-  await page.locator("[data-tile]").click({ force: true });
-  await page.getByTestId("agent-options-toggle").dispatchEvent("click");
-  await expect(page.getByText("Model")).toBeVisible();
-  await expect(page.getByText("Thinking")).toBeVisible();
+  await page.getByTestId("agent-inspect-toggle").click();
+  await expect(page.getByTestId("agent-inspect-panel")).toBeVisible();
+  await expect(page.getByTestId("agent-inspect-settings")).toContainText("Model");
+  await expect(page.getByTestId("agent-inspect-settings")).toContainText("Thinking");
+  await expect(page.getByTestId("agent-inspect-files")).toBeVisible();
 });
