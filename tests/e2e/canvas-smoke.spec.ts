@@ -1,12 +1,12 @@
 import { expect, test } from "@playwright/test";
 
-test("loads canvas empty state", async ({ page }) => {
+test("loads focused workspace empty state", async ({ page }) => {
   await page.route("**/api/studio", async (route, request) => {
     if (request.method() === "PUT") {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify({ settings: { version: 1, gateway: null, layouts: {} } }),
+        body: JSON.stringify({ settings: { version: 1, gateway: null, layouts: {}, focused: {} } }),
       });
       return;
     }
@@ -17,9 +17,13 @@ test("loads canvas empty state", async ({ page }) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify({ settings: { version: 1, gateway: null, layouts: {} } }),
+      body: JSON.stringify({ settings: { version: 1, gateway: null, layouts: {}, focused: {} } }),
     });
   });
+
   await page.goto("/");
-  await expect(page.getByText("Gateway URL")).toBeVisible();
+
+  await expect(page.getByTestId("view-mode-focused")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("fleet-sidebar")).toBeVisible();
+  await expect(page.getByTestId("focused-agent-panel")).toBeVisible();
 });
